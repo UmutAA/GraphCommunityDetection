@@ -538,7 +538,7 @@ int fastGreedy(Graph *graph, int *communities)
     }
     return 0;
 }
-//My Algorithm
+//My Algorithm (SCP & )
 int commonNeighbours(Graph *graph, int v1, int v2)
 {
     int count = 0;
@@ -609,6 +609,126 @@ int SCP(Graph *graph, int *communities)
     return 0;
 }
 
+// Merge function for degrees array
+void merge(int arr[][2], int l, int m, int r)
+{
+    int n1 = m - l + 1;
+    int n2 = r - m;
+
+    int L[n1][2], R[n2][2];
+
+    for (int i = 0; i < n1; i++)
+    {
+        L[i][0] = arr[l + i][0];
+        L[i][1] = arr[l + i][1];
+    }
+    for (int j = 0; j < n2; j++)
+    {
+        R[j][0] = arr[m + 1 + j][0];
+        R[j][1] = arr[m + 1 + j][1];
+    }
+
+    int i = 0, j = 0, k = l;
+    while (i < n1 && j < n2)
+    {
+        if (L[i][1] >= R[j][1]) // descending
+        {
+            arr[k][0] = L[i][0];
+            arr[k][1] = L[i][1];
+            i++;
+        }
+        else
+        {
+            arr[k][0] = R[j][0];
+            arr[k][1] = R[j][1];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1)
+    {
+        arr[k][0] = L[i][0];
+        arr[k][1] = L[i][1];
+        i++;
+        k++;
+    }
+    while (j < n2)
+    {
+        arr[k][0] = R[j][0];
+        arr[k][1] = R[j][1];
+        j++;
+        k++;
+    }
+}
+
+void mergeSort(int arr[][2], int l, int r)
+{
+    if (l < r)
+    {
+        int m = l + (r - l) / 2;
+        mergeSort(arr, l, m);
+        mergeSort(arr, m + 1, r);
+        merge(arr, l, m, r);
+    }
+}
+
+int FastLouvain(Graph* graph,  int* communities)
+{
+    int n = graph->numV;
+    int degrees[V+1][2]; // [0] = vertex, [1] = degree
+
+    // Step 1: Calculate degrees
+    for (int i = 1; i <= n; i++)
+    {
+        degrees[i][0] = i;
+        degrees[i][1] = nodeDegree(graph, i);
+        communities[i] = 0; // initially no community
+    }
+
+    // Step 2: Sort nodes by degree descending (high-degree first)
+    mergeSort(degrees, 1, n);
+
+    double m2 = 2.0 * totalGraphWeight(graph);
+    int nextCommunity = 1;
+
+    // Step 3: Assign communities based on ΔQ
+    for (int i = 1; i <= n; i++)
+    {
+        int v = degrees[i][0];
+        int bestCommunity = 0;
+        double bestDeltaQ = 0;
+
+        // Check all existing communities
+        for (int c = 1; c < nextCommunity; c++)
+        {
+            double ki = nodeDegree(graph, v);
+            double ki_in = computeKi_in(graph, v, c, communities);
+            double totC = communityWeight(graph, communities, c);
+
+            double dQ = (ki_in / m2) - ((ki * totC) / (m2 * m2));
+
+            if (dQ > bestDeltaQ)
+            {
+                bestDeltaQ = dQ;
+                bestCommunity = c;
+            }
+        }
+
+        // If no positive gain, create a new community
+        if (bestDeltaQ <= 0)
+        {
+            communities[v] = nextCommunity;
+            nextCommunity++;
+        }
+        else
+        {
+            communities[v] = bestCommunity;
+        }
+    }
+    return 0;
+}
+
 // TOOL FUNCS
 double mesureElapsedTime(int (*func)(Graph *, int *), Graph *graph, int *communities)
 {
@@ -657,6 +777,9 @@ int main()
     // My Algorithm - SCP - Structural Connectivity Partition
     elapsed_time = mesureElapsedTime(SCP, graph, communities);
     printf("My Algorithm SCP - (Structural Connectivity Partition):\nQ: %.4lf   Com: %d     Passed Time: %4.lfms\n", modularity(graph, communities), communityCount(graph, communities), elapsed_time);
+    // My Algorithm - 
+    elapsed_time = mesureElapsedTime(FastLouvain, graph, communities);
+    printf("My Algorithm Fast Louvain:\nQ: %.4lf   Com: %d     Passed Time: %.4lfms\n", modularity(graph, communities), communityCount(graph, communities), elapsed_time);
     
     return 0;
 }

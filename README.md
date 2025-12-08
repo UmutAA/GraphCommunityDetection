@@ -1,12 +1,12 @@
-A C program for detecting communities in undirected graphs using multiple algorithms, including **Louvain**, **Fast Greedy**, and a custom **Structural Connectivity Partition (SCP)** method. A test data (Zachary Karate Club) is present in repo.
+A C program for detecting communities in undirected graphs using multiple algorithms, including **Louvain**, **Fast Greedy**, and custom **Structural Connectivity Partition (SCP) & Fast Louvain** methods. A test data (Zachary Karate Club) is present inside the zip file.
 
 ## Features
 
+- Load graph data from a text file
 - Represent graphs using adjacency lists
 - Compute modularity and community structure
-- Compare Louvain, Fast Greedy, and SCP algorithms
+- Compare Louvain, Fast Greedy, SCP and Fast Louvain algorithms
 - Measure execution time for each algorithm
-- Load graph data from a text file
 
 ## Installation
 
@@ -38,3 +38,4 @@ A C program for detecting communities in undirected graphs using multiple algori
 
 - SCP (Structural Connectivity Partition): Custom algorithm based on strong-edge thresholds and common neighbors.
 
+- Fast Louvain: A faster version of Louvain Phase 1. Sorts the nodes in a descending order of their degrees and assigning each node to a community by modularity difference.
