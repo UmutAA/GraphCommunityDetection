@@ -1,4 +1,4 @@
-A C program for detecting communities in undirected graphs using multiple algorithms, including **Louvain**, **Fast Greedy**, and a custom **Structural Connectivity Partition (SCP)** method.
+A C program for detecting communities in undirected graphs using multiple algorithms, including **Louvain**, **Fast Greedy**, and a custom **Structural Connectivity Partition (SCP)** method. A test data (Zachary Karate Club) is present in repo.
 
 ## Features
 
