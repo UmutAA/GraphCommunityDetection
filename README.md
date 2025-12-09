@@ -1,4 +1,4 @@
-A C program for detecting communities in undirected graphs using multiple algorithms, including **Louvain**, **Fast Greedy**, and custom **Structural Connectivity Partition (SCP) & Fast Louvain** methods. A test data (Zachary Karate Club) is present inside the zip file.
+A C program for detecting communities in undirected graphs using multiple algorithms, including **Louvain**, **Fast Greedy**, and custom **Structural Connectivity Partition (SCP), Fast Louvain, Kernel Partition** methods. A test data (Zachary Karate Club) is present inside the zip file.
 
 ## Features
 
@@ -39,3 +39,5 @@ A C program for detecting communities in undirected graphs using multiple algori
 - SCP (Structural Connectivity Partition): Custom algorithm based on strong-edge thresholds and common neighbors.
 
 - Fast Louvain: A faster version of Louvain Phase 1. Sorts the nodes in a descending order of their degrees and assigning each node to a community by modularity difference.
+
+- Kernel Partition: The Kernel Partition algorithm assigns each unassigned high-degree node as a kernel and groups it with its neighbors to quickly form communities.

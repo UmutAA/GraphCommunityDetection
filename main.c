@@ -75,7 +75,7 @@ void addEdge(Graph *graph, int source, int dest, int weight)
             if (temp->vertex == source)
             {
                 temp->weight += weight;
-                return;
+                break;
             }
             temp = temp->next;
         }
@@ -111,7 +111,7 @@ void addEdge(Graph *graph, int source, int dest, int weight)
         if (temp->vertex == source)
         {
             temp->weight += weight;
-            return;
+            break;
         }
         temp = temp->next;
     }
@@ -462,15 +462,18 @@ int louvainFull(Graph *graph, int *communities)
         }
         Graph *superGraph = louvainAggregate(currentGraph, currentCommunities);
         int *superCommunities = (int *)calloc(superGraph->numV + 1, sizeof(int));
-        louvainPhase1(superGraph, superCommunities);
+        improved = louvainPhase1(superGraph, superCommunities);
         for (int vertex = 1; vertex <= currentGraph->numV; vertex++)
         {
             currentCommunities[vertex] = superCommunities[mapOldToNew[currentCommunities[vertex]]];
         }
         currentCommunities = superCommunities;
         currentGraph = superGraph;
+        free(mapNewToOLd);
+        free(mapOldToNew);
     }
-
+    free(currentCommunities);
+    free(currentGraph);
     return 0;
 }
 //Fast Greedy
@@ -538,7 +541,7 @@ int fastGreedy(Graph *graph, int *communities)
     }
     return 0;
 }
-//My Algorithm (SCP & )
+//My Algorithms
 int commonNeighbours(Graph *graph, int v1, int v2)
 {
     int count = 0;
@@ -673,12 +676,12 @@ void mergeSort(int arr[][2], int l, int r)
     }
 }
 
-int FastLouvain(Graph* graph,  int* communities)
+int fastLouvain(Graph* graph,  int* communities)
 {
     int n = graph->numV;
     int degrees[V+1][2]; // [0] = vertex, [1] = degree
 
-    // Step 1: Calculate degrees
+    //Calculate degrees
     for (int i = 1; i <= n; i++)
     {
         degrees[i][0] = i;
@@ -686,13 +689,13 @@ int FastLouvain(Graph* graph,  int* communities)
         communities[i] = 0; // initially no community
     }
 
-    // Step 2: Sort nodes by degree descending (high-degree first)
+    //Sort nodes by degree descending (high-degree first)
     mergeSort(degrees, 1, n);
 
     double m2 = 2.0 * totalGraphWeight(graph);
     int nextCommunity = 1;
 
-    // Step 3: Assign communities based on ΔQ
+    //Assign communities based on ΔQ
     for (int i = 1; i <= n; i++)
     {
         int v = degrees[i][0];
@@ -725,6 +728,65 @@ int FastLouvain(Graph* graph,  int* communities)
         {
             communities[v] = bestCommunity;
         }
+    }
+    return 0;
+}
+
+//Toold funcs for Kernel Partition
+int findKernel(Graph* graph, int* communities)
+{
+    int maxDegree = 0;
+    int bestNode = 0;
+    for (int v = 1; v <= graph->numV; v++)
+    {
+        if (communities[v] == 0 && nodeDegree(graph, v) > maxDegree)
+        {
+            maxDegree = nodeDegree(graph, v);
+            bestNode = v;
+        }
+    }
+
+    return bestNode;
+}
+
+int allAssigned(Graph* graph, int* communities)
+{
+    for (int i = 1; i <= graph->numV; i++)
+    {
+        if (communities[i] == 0)
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int kernelPartition(Graph* graph, int* communities)
+{
+    for (int vertex = 0; vertex <= graph->numV; vertex++)
+    {
+        communities[vertex] = 0;
+    }
+    int comId = 1;
+    while (!allAssigned(graph, communities))
+    {
+        int kernel = findKernel(graph,communities);
+        if (kernel == 0) break;
+        //Assigning community around the kernel
+        communities[kernel] = comId;
+        AdjListNode* temp = graph->AdjLists[kernel];
+        while (temp)
+        {
+            int nv = temp->vertex;
+            if (communities[nv] != 0)
+            {
+                temp = temp->next;
+                continue;
+            }
+            communities[nv] = comId;
+            temp = temp->next;
+        }
+        comId++;
     }
     return 0;
 }
@@ -774,12 +836,15 @@ int main()
     // Fast Greedy Algorithm
     elapsed_time = mesureElapsedTime(fastGreedy, graph, communities);
     printf("FastGreedy:\nQ: %.4lf       Com: %d       Passed Time: %.4lfms\n", modularity(graph, communities), communityCount(graph, communities), elapsed_time);
-    // My Algorithm - SCP - Structural Connectivity Partition
+    // My Algorithm - Structural Connectivity Partition (SCP)
     elapsed_time = mesureElapsedTime(SCP, graph, communities);
     printf("My Algorithm SCP - (Structural Connectivity Partition):\nQ: %.4lf   Com: %d     Passed Time: %4.lfms\n", modularity(graph, communities), communityCount(graph, communities), elapsed_time);
-    // My Algorithm - 
-    elapsed_time = mesureElapsedTime(FastLouvain, graph, communities);
+    // My Algorithm - Fast Louvain
+    elapsed_time = mesureElapsedTime(fastLouvain, graph, communities);
     printf("My Algorithm Fast Louvain:\nQ: %.4lf   Com: %d     Passed Time: %.4lfms\n", modularity(graph, communities), communityCount(graph, communities), elapsed_time);
-    
+    //My Algorithm - Kernel Partition
+    elapsed_time = mesureElapsedTime(kernelPartition, graph, communities);
+    printf("My Algorithm Kernel Partition:\nQ: %.4lf   Com: %d     Passed Time: %.4lfms\n", modularity(graph, communities), communityCount(graph, communities), elapsed_time);
+    freeGraph(graph);
     return 0;
 }
