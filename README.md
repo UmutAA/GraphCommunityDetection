@@ -18,9 +18,14 @@ A C program for detecting communities in undirected graphs using multiple algori
     ```bash
     cd GraphCommunityDetection
     ```
-3. Compile the program (Windows):
+3. Compile the program (gcc compiler):
     ```bash
     gcc -o community_detection main.c
+    ```
+
+4. Run the program (Windows):
+    ```bash
+    ./main.exe
     ```
 
 ## Usage
@@ -41,3 +46,6 @@ A C program for detecting communities in undirected graphs using multiple algori
 - Fast Louvain: A faster version of Louvain Phase 1. Sorts the nodes in a descending order of their degrees and assigning each node to a community by modularity difference.
 
 - Kernel Partition: The Kernel Partition algorithm assigns each unassigned high-degree node as a kernel and groups it with its neighbors to quickly form communities.
+
+## Important
+If you are using an OS other than Windows, time functions may not work on your device. In order to run the program, you need to delete those functios from source code.
