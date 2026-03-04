@@ -48,4 +48,4 @@ A C program for detecting communities in undirected graphs using multiple algori
 - Kernel Partition: The Kernel Partition algorithm assigns each unassigned high-degree node as a kernel and groups it with its neighbors to quickly form communities.
 
 ## Important
-If you are using an OS other than Windows, time functions may not work on your device. In order to run the program, you need to delete those functios from source code.
+If you are using an OS other than Windows, time functions may not work on your device. In order to run the program, you need to delete those functions from source code.
